@@ -866,6 +866,7 @@
       currentQuizId: null,
       soundEnabled: true,
       userInputs: {},
+      shuffledOptions: {},
       matchingSelection: null,
       matchedPairs: {}
     };
@@ -1129,15 +1130,34 @@
           </div>
         `;
       } else if (q.interactiveType === "single_choice") {
-        const shuffledOpts = shuffleArray(q.options);
+        if (!gameState.shuffledOptions[q.id]) {
+          const cleanList = q.options.map(opt => {
+            const isOriginalAnswer = opt.startsWith(q.answer + '.') || opt === q.answer;
+            const text = opt.replace(/^[A-D]\.\s*/, '').trim();
+            return { text, isCorrect: isOriginalAnswer };
+          });
+          gameState.shuffledOptions[q.id] = shuffleArray(cleanList);
+        }
+        const labels = ['A', 'B', 'C', 'D'];
+        const optionsList = gameState.shuffledOptions[q.id];
         container.innerHTML = `
-          <div class="space-y-1.5">
-            ${shuffledOpts.map(opt => {
-              const optKey = opt.charAt(0);
-              const isCorrect = isSolved && (optKey === q.answer || opt === q.answer);
+          <div class="space-y-2">
+            ${optionsList.map((item, idx) => {
+              const label = labels[idx];
+              const isSelected = gameState.userInputs[q.id] === item.text;
+              const showCorrect = isSolved && item.isCorrect;
               return `
-                <button type="button" onclick="selectChoiceOption('${optKey}', this)" class="quiz-choice-btn w-full text-left p-2.5 rounded-lg border border-neutral-300 bg-white hover:bg-amber-50 font-bold text-xs text-neutral-800 transition ${isCorrect ? 'bg-emerald-100 border-emerald-600 text-emerald-950 font-black' : ''}">
-                  ${opt}
+                <button type="button" onclick="selectChoiceOption('${item.text.replace(/'/g, "\\'")}', this)" class="quiz-choice-btn w-full text-left p-3 rounded-xl border-2 transition font-bold text-xs flex items-center gap-3 ${
+                  showCorrect 
+                    ? 'bg-emerald-100 border-emerald-600 text-emerald-950 font-black' 
+                    : (isSelected 
+                        ? 'bg-amber-800 text-white border-amber-950 shadow-md ring-2 ring-amber-400 font-bold' 
+                        : 'border-neutral-300 bg-white hover:bg-amber-50 text-neutral-800')
+                }">
+                  <span class="w-6 h-6 rounded-lg ${isSelected ? 'bg-amber-300 text-amber-950 font-black' : 'bg-neutral-200 text-neutral-800 font-bold'} flex items-center justify-center flex-none text-xs border border-neutral-300">
+                    ${label}
+                  </span>
+                  <span class="flex-1 leading-snug">${item.text}</span>
                 </button>
               `;
             }).join('')}
@@ -1256,11 +1276,19 @@
     function selectChoiceOption(val, btn) {
       playSound('click');
       document.querySelectorAll('.quiz-choice-btn').forEach(b => {
-        b.classList.remove('bg-amber-700', 'text-white');
-        b.classList.add('bg-white', 'text-neutral-800');
+        b.classList.remove('bg-amber-800', 'text-white', 'border-amber-950', 'shadow-md', 'ring-2', 'ring-amber-400');
+        b.classList.add('bg-white', 'text-neutral-800', 'border-neutral-300');
+        const badge = b.querySelector('span');
+        if (badge) {
+          badge.className = "w-6 h-6 rounded-lg bg-neutral-200 text-neutral-800 font-bold flex items-center justify-center flex-none text-xs border border-neutral-300";
+        }
       });
-      btn.classList.add('bg-amber-700', 'text-white');
-      btn.classList.remove('bg-white', 'text-neutral-800');
+      btn.classList.add('bg-amber-800', 'text-white', 'border-amber-950', 'shadow-md', 'ring-2', 'ring-amber-400');
+      btn.classList.remove('bg-white', 'text-neutral-800', 'border-neutral-300');
+      const badge = btn.querySelector('span');
+      if (badge) {
+        badge.className = "w-6 h-6 rounded-lg bg-amber-300 text-amber-950 font-black flex items-center justify-center flex-none text-xs border border-amber-400";
+      }
       gameState.userInputs[gameState.currentQuizId] = val;
     }
 
@@ -1452,8 +1480,15 @@
           alert("Vui lòng chọn phương án trả lời!");
           return;
         }
-        if (val.toUpperCase() === q.answer.toUpperCase() || val === q.answer.charAt(0)) {
-          isCorrect = true;
+        if (q.interactiveType === "single_choice") {
+          const item = gameState.shuffledOptions?.[id]?.find(it => it.text === val);
+          if (item ? item.isCorrect : (val.toUpperCase() === q.answer.toUpperCase() || val === q.answer.charAt(0))) {
+            isCorrect = true;
+          }
+        } else {
+          if (val.toUpperCase() === q.answer.toUpperCase() || val === q.answer.charAt(0)) {
+            isCorrect = true;
+          }
         }
       } else if (q.interactiveType === "multi_cards") {
         const selected = gameState.userInputs[id] || [];
