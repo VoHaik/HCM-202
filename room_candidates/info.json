@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "file": "candidate_1.jpg",
+    "title": "File:Antique writing desk - Casa Loma.jpg",
+    "w": 3648,
+    "h": 2736
+  },
+  {
+    "id": 2,
+    "file": "candidate_2.jpg",
+    "title": "File:1655 - Frontispiece of Museum Wormiani Historia.jpg",
+    "w": 4748,
+    "h": 3670
+  },
+  {
+    "id": 3,
+    "file": "candidate_3.jpg",
+    "title": "File:The Viktor Wynd Museum cabinet of curiosities 22.jpg",
+    "w": 4240,
+    "h": 2832
+  },
+  {
+    "id": 4,
+    "file": "candidate_4.jpg",
+    "title": "File:The Viktor Wynd Museum cabinet of curiosities 23.jpg",
+    "w": 4240,
+    "h": 2832
+  },
+  {
+    "id": 5,
+    "file": "candidate_5.jpg",
+    "title": "File:The Viktor Wynd Museum cabinet of curiosities 25.jpg",
+    "w": 4240,
+    "h": 2832
+  },
+  {
+    "id": 6,
+    "file": "candidate_6.jpg",
+    "title": "File:The Viktor Wynd Museum cabinet of curiosities 26.jpg",
+    "w": 4240,
+    "h": 2832
+  },
+  {
+    "id": 7,
+    "file": "candidate_7.jpg",
+    "title": "File:The Viktor Wynd Museum cabinet of curiosities 27.jpg",
+    "w": 4240,
+    "h": 2832
+  },
+  {
+    "id": 8,
+    "file": "candidate_8.jpg",
+    "title": "File:The Viktor Wynd Museum cabinet of curiosities 28.jpg",
+    "w": 4240,
+    "h": 2832
+  }
+]

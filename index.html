@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="vi" class="w-full h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ESCAPE ROOM - HCM202 TƯ TƯỞNG HỒ CHÍ MINH</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&family=Nunito:wght@600;700;800;900&family=Special+Elite&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #0d0a08;
+      color: #2b170d;
+      font-family: 'Nunito', sans-serif;
+      user-select: none;
+    }
+
+    .font-canva {
+      font-family: 'Fredoka', 'Nunito', sans-serif;
+      letter-spacing: 0.02em;
+    }
+
+    .font-typewriter {
+      font-family: 'Special Elite', monospace;
+    }
+
+    /* Pulse animation for unsolved hotspots */
+    @keyframes cluePulse {
+      0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.9));
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.15);
+        filter: drop-shadow(0 0 16px rgba(251, 191, 36, 1));
+      }
+    }
+
+    .clue-hotspot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 20;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .clue-hotspot.unsolved .hotspot-bubble {
+      animation: cluePulse 2.2s infinite ease-in-out;
+    }
+
+    .clue-hotspot:hover {
+      z-index: 35;
+      transform: translate(-50%, -50%) scale(1.22);
+    }
+
+    .clue-hotspot.solved .hotspot-bubble {
+      background: #10b981;
+      border-color: #047857;
+      color: white;
+      filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.8));
+    }
+
+    /* Magnifying glass styling like Canva PDF */
+    .mag-lens {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(254, 240, 138, 0.95);
+      border: 3.5px solid #d97706;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .mag-lens::after {
+      content: '';
+      position: absolute;
+      bottom: -9px;
+      right: -7px;
+      width: 6px;
+      height: 16px;
+      background: #451a03;
+      border-radius: 3px;
+      transform: rotate(-45deg);
+      border: 1px solid #78350f;
+    }
+
+    /* Notebook clue card style (like Canva page 6 & 9) */
+    .notebook-card {
+      background-color: #fffdfa;
+      background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+      background-size: 16px 16px;
+      border-radius: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.05);
+      position: relative;
+    }
+
+    /* Washi tape at top of clue card */
+    .washi-tape {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-1deg);
+      width: 140px;
+      height: 28px;
+      background: rgba(180, 83, 9, 0.8);
+      border: 1px dashed rgba(255, 255, 255, 0.4);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* Binder holes along the left side */
+    .binder-holes {
+      position: absolute;
+      left: 12px;
+      top: 30px;
+      bottom: 30px;
+      width: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      pointer-events: none;
+    }
+
+    .binder-hole {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #2b170d;
+      box-shadow: inset 1px 1px 3px rgba(0,0,0,0.8);
+    }
+
+    /* Mirror flip */
+    .mirror-flipped {
+      transform: scaleX(-1);
+      display: inline-block;
+      letter-spacing: 2px;
+    }
+
+    /* Escape Code Letter Box */
+    .code-box {
+      width: 48px;
+      height: 58px;
+      border: 3px solid #d97706;
+      background: #241810;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
+      transition: all 0.3s;
+    }
+
+    .code-box.filled {
+      border-color: #10b981;
+      background: #064e3b;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+    }
+  </style>
+</head>
+<body class="w-full h-full flex flex-col bg-[#0d0a08]">
+
+  <!-- TOP CONSOLE / HEADER (Fits full viewport width) -->
+  <header class="w-full h-14 bg-[#1a130e] border-b-2 border-[#78350f] px-4 lg:px-8 flex items-center justify-between flex-none shadow-xl z-30 text-amber-100">
+    
+    <!-- Title with Canva Badge -->
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-amber-500 border-2 border-amber-200 flex items-center justify-center text-neutral-950 font-black shadow-md flex-none">
+        <i class="fa-solid fa-magnifying-glass text-base"></i>
+      </div>
+      <div>
+        <div class="text-[9px] tracking-widest text-amber-400 font-extrabold uppercase">
+          HCM202 • AN INTERACTIVE ICEBREAKER
+        </div>
+        <h1 class="font-canva text-base lg:text-lg font-black text-amber-200 tracking-wide uppercase truncate">
+          ESCAPE ROOM: MẬT THẤT TƯ TƯỞNG
+        </h1>
+      </div>
+    </div>
+
+    <!-- Solved Counter -->
+    <div class="flex items-center gap-3">
+      <div class="text-right">
+        <div class="text-[8px] uppercase text-amber-400 font-bold">MANH MỐI ĐÃ GIẢI</div>
+        <div class="text-xs font-black text-amber-200">
+          <span id="solvedCount" class="text-emerald-400 text-lg">0</span> / 15
+        </div>
+      </div>
+      <div class="w-20 bg-neutral-900 h-2.5 rounded-full border border-amber-950 overflow-hidden">
+        <div id="progressBar" class="bg-gradient-to-r from-amber-500 to-emerald-400 h-full transition-all duration-500 w-0"></div>
+      </div>
+    </div>
+
+    <!-- Actions: Sound, Fullscreen, Escape Door -->
+    <div class="flex items-center gap-2">
+      <!-- Master Escape Door Button -->
+      <button onclick="handleDoorClick()" class="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-neutral-950 px-3.5 py-1.5 rounded-lg font-canva font-black text-xs uppercase tracking-wider shadow-lg flex items-center gap-2 transition active:scale-95 border border-amber-300">
+        <i class="fa-solid fa-door-open text-neutral-950"></i>
+        <span class="hidden sm:inline">CỬA THOÁT HIỂM (<span id="headerDoorProgress">0</span>/15)</span>
+        <span class="sm:hidden">CỬA (<span id="headerDoorProgressSm">0</span>/15)</span>
+      </button>
+
+      <!-- Toggle Sound -->
+      <button onclick="toggleSound()" class="p-2 rounded-lg bg-[#2b170d] hover:bg-[#452414] text-amber-300 border border-amber-900 text-xs transition" title="Bật/Tắt âm thanh">
+        <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+      </button>
+
+      <!-- Fullscreen -->
+      <button onclick="toggleFullScreen()" class="p-2 rounded-lg bg-[#2b170d] hover:bg-[#452414] text-amber-300 border border-amber-900 text-xs transition" title="Toàn màn hình">
+        <i class="fa-solid fa-expand"></i>
+      </button>
+    </div>
+
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- MAIN STAGE: RESPONSIVE ROOM (Fills 100% of viewport space) -->
+  <!-- ======================================================== -->
+  <main class="flex-1 w-full relative overflow-hidden flex items-center justify-center p-1 sm:p-2 bg-[#090706]">
+    
+    <!-- 16:9 Aspect Ratio Frame dynamically filling height and width -->
+    <div class="relative w-full h-full max-w-full max-h-full aspect-video rounded-xl overflow-hidden shadow-2xl border-2 border-amber-950/80 bg-black flex items-center justify-center">
+      
+      <!-- CLEAN 16:9 VECTOR OFFICE ESCAPE ROOM BACKGROUND -->
+      <img src="assets/room_background.png" alt="Escape Room Study" class="w-full h-full object-fill pointer-events-none select-none">
+
+      <!-- ESCAPE DOOR BADGE (Top Right of Room) -->
+      <div onclick="handleDoorClick()" class="absolute top-3 right-4 z-25 cursor-pointer group bg-black/85 hover:bg-black border-2 border-amber-400 px-4 py-2 rounded-xl shadow-2xl flex items-center gap-3 transition transform hover:scale-105">
+        <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-black font-black">
+          <i class="fa-solid fa-door-closed group-hover:hidden"></i>
+          <i class="fa-solid fa-door-open hidden group-hover:block"></i>
+        </div>
+        <div>
+          <div class="text-[9px] font-extrabold text-amber-400 uppercase tracking-widest">CỬA THOÁT HIỂM</div>
+          <div id="roomDoorStatus" class="font-canva text-xs font-black text-white uppercase tracking-wider">TIẾN ĐỘ: 0/15 MANH MỐI ➔</div>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- 15 INTERACTIVE CLUE HOTSPOTS ON REAL PHYSICAL OBJECTS -->
+      <!-- ======================================================== -->
+
+      <!-- ITEM 1: Quả Địa Cầu Cổ (Antique Standing Globe) -->
+      <div id="hotspot-1" onclick="openQuiz(1)" class="clue-hotspot unsolved" style="left: 68%; top: 58%;" title="#1: Quả địa cầu cổ chân gỗ">
+        <div class="hotspot-bubble mag-lens">
+          <span class="text-[8px] font-black text-[#78350f] leading-none uppercase">CLUE</span>
+          <span class="text-sm font-black text-[#451a03] leading-none">1</span>
+        </div>
+      </div>
+
+      <!-- ITEM 2: Cuốn Sách Cổ Mở (Open Ancient Book on Table) -->
+      <div id="hotspot-2" onclick="openQuiz(2)" class="clue-hotspot unsolved" style="left: 92%; top: 59%;" title="#2: Cuốn sách mở trên bàn nhỏ">
+        <div class="hotspot-bubble mag-lens">
+          <span class="text-[8px] font-black text-[#78350f] leading-none uppercase">CLUE</span>
+          <span class="text-sm font-black text-[#451a03] leading-none">2</span>
+        </div>
+      </div>
+
+      <!-- ITEM 3: Chồng Sách Cổ Cạnh Đèn (Book Stack on Small Table) -->
+      <div id="hotspot-3" onclick="openQuiz(3)" class="clue-hotspot unsolved" style="left: 92%; top: 71%;" title="#3: Chồng sách cổ cạnh đồng hồ">
+        <div class="hotspot-bubble mag-lens">
+          <span class="text-[8px] font-black text-[#78350f] leading-none uppercase">CLUE</span>
+          <span class="text-sm font-black text-[#451a03] leading-none">3</span>
+        </div>
+      </div>
+
+      <!-- ITEM 4: Đèn Thả Trần Phát Sáng (Ceiling Pendant Lamp) -->
+      <div id="hotspot-4" onclick="openQuiz(4)" class="clue-hotspot unsolved" style="left: 60%; top: 14%;" title="#4: Đèn thả trần phát sáng">
+        <div class="hotspot-bubble mag-lens">
+          <span class="text-[8px] font-black text-[#78350f] leading-none uppercase">CLUE</span>
+          <span class="text-sm font-black text-[#451a03] leading-none">4</span>
+        </div>
+      </div>
+
+      <!-- ITEM 5: Bảng Ghim Ghi Chú Góc Trái (Cork Notice Board) -->
+      <div id="hotspot-5" onclick="openQuiz(5)" class="clue-hotspot unsolved" style="left: 6%; top: 24%;" title="#5: Bảng ghim ghi chú góc trái">
+        <div class="hotspot-bubble mag-lens">
+          <span class="text-[8px] font-black text-[#78350f] leading-none uppercase">CLUE</span>
+          <span class="text-sm font-black text-[#451a03] leading-none">5</span>
+        </div>
+      </div>
+
+      <!-- ITEM 6: Đèn Bàn Chụp Xanh (Green Banker Lamp) -->
+      <div id="hotspot-6" onclick="openQuiz(6)" class="clue-hotspot unsolved" style="left: 11%; top: 43%;" title="#6: Đèn bàn chụp xanh">
+        <div class="hotspot-bubble mag-lens">
+          <span class="text-[8px] font-black text-[#78350f] leading-none uppercase">CLUE</span>
+          <span class="text-sm font-black text-[#451a03] leading-none">6</span>
+        </div>
+      </div>
+
+      <!-- ITEM 7: Khung Tranh Mạ Vàng Treo Tường (Wall Picture Frame) -->
+      <div id="hotspot-7" onclick="openQuiz(7)" class="clue-hotspot unsolved" style="left: 85%; top: 30%;" title="#7: Khung tranh mạ vàng treo tường">
+        <div class="hotspot-bubble mag-lens">
+          <span class="text-[8px] font-black text-[#78350f] leading-none uppercase">CLUE</span>
+          <span class="text-sm font-black text-[#451a03] leading-none">7</span>
+        </div>
+      </div>
+
+      <!-- ITEM 8: Tủ Hồ Sơ Sắt 2 Ngăn (Metal Filing Cabinet) -->
+      <div id="hotspot-8" onclick="openQuiz(8)" class="clue-hotspot unsolved" style="left: 37%; top: 66%;" title="#8: Tủ hồ sơ sắt 2 ngăn">
+        <div class="hotspot-bubble mag-lens">
+          <span class="text-[8px] font-black text-[#78350f] leading-none uppercase">CLUE</span>
+          <span class="text-sm font-black text-[#451a03] leading-none">8</span>
+        </div>
+      </div>
+
+      <!-- ITEM 9: Cửa Sổ Gỗ Lồng Kính (Wooden Window Pane) -->
+      <div id="hotspot-9" onclick="openQuiz(9)" class="clue-hotspot unsolved" style="left: 36%; top: 28%;" title="#9: Cửa sổ gỗ lồng kính">
+        <div class="hotspot-bubble mag-lens">
+          <span class="text-[8px] font-black text-[#78350f] leading-none uppercase">CLUE</span>
+          <span class="text-sm font-black text-[#451a03] leading-none">9</span>
+        </div>
+      </div>
+
+      <!-- ITEM 10: Bản Ghi Nhớ Ghim Trên Bảng (Pinned Memo Note) -->
+      <div id="hotspot-10" onclick="openQuiz(10)" class="clue-hotspot unsolved" style="left: 12%; top: 33%;" title="#10: Bản ghi nhớ ghim trên bảng">
+        <div class="hotspot-bubble mag-lens">
+          <span class="text-[8px] font-black text-[#78350f] leading-none uppercase">CLUE</span>
+          <span class="text-sm font-black text-[#451a03] leading-none">10</span>
+        </div>
+      </div>
+
+      <!-- ITEM 11: Bảng Tên Gỗ Trên Bàn (Desk Nameplate) -->
+      <div id="hotspot-11" onclick="openQuiz(11)" class="clue-hotspot unsolved" style="left: 5%; top: 60%;" title="#11: Bảng tên gỗ trên bàn">
+        <div class="hotspot-bubble mag-lens">
+          <span class="text-[8px] font-black text-[#78350f] leading-none uppercase">CLUE</span>
+          <span class="text-sm font-black text-[#451a03] leading-none">11</span>
+        </div>
+      </div>
+
+      <!-- ITEM 12: Chậu Cây Cảnh Phòng Làm Việc (Potted Palm Plant) -->
+      <div id="hotspot-12" onclick="openQuiz(12)" class="clue-hotspot unsolved" style="left: 26%; top: 56%;" title="#12: Chậu cây cảnh phòng làm việc">
+        <div class="hotspot-bubble mag-lens">
+          <span class="text-[8px] font-black text-[#78350f] leading-none uppercase">CLUE</span>
+          <span class="text-sm font-black text-[#451a03] leading-none">12</span>
+        </div>
+      </div>
+
+      <!-- ITEM 13: Hộc Tủ Bàn Làm Việc Gỗ (Office Desk Drawer) -->
+      <div id="hotspot-13" onclick="openQuiz(13)" class="clue-hotspot unsolved" style="left: 8%; top: 77%;" title="#13: Hộc tủ bàn làm việc gỗ">
+        <div class="hotspot-bubble mag-lens">
+          <span class="text-[8px] font-black text-[#78350f] leading-none uppercase">CLUE</span>
+          <span class="text-sm font-black text-[#451a03] leading-none">13</span>
+        </div>
+      </div>
+
+      <!-- ITEM 14: Bàn Gỗ Nhỏ Góc Phải (Small Side Table) -->
+      <div id="hotspot-14" onclick="openQuiz(14)" class="clue-hotspot unsolved" style="left: 87%; top: 91%;" title="#14: Bàn gỗ nhỏ góc phải">
+        <div class="hotspot-bubble mag-lens">
+          <span class="text-[8px] font-black text-[#78350f] leading-none uppercase">CLUE</span>
+          <span class="text-sm font-black text-[#451a03] leading-none">14</span>
+        </div>
+      </div>
+
+      <!-- ITEM 15: Đồng Hồ Báo Thức Cổ (Antique Alarm Clock) -->
+      <div id="hotspot-15" onclick="openQuiz(15)" class="clue-hotspot unsolved" style="left: 86%; top: 75%;" title="#15: Đồng hồ báo thức cổ">
+        <div class="hotspot-bubble mag-lens">
+          <span class="text-[8px] font-black text-[#78350f] leading-none uppercase">CLUE</span>
+          <span class="text-sm font-black text-[#451a03] leading-none">15</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: DETECTIVE NOTEBOOK CLUE CARD -->
+  <!-- ======================================================== -->
+  <div id="quizModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 animate-fade-in">
+    <div class="notebook-card relative w-full max-w-xl p-8 pt-9 text-neutral-900 max-h-[92vh] flex flex-col justify-between overflow-y-auto">
+      
+      <!-- Washi tape at top -->
+      <div class="washi-tape"></div>
+
+      <!-- Binder holes on the left -->
+      <div class="binder-holes">
+        <div class="binder-hole"></div>
+        <div class="binder-hole"></div>
+        <div class="binder-hole"></div>
+        <div class="binder-hole"></div>
+        <div class="binder-hole"></div>
+        <div class="binder-hole"></div>
+        <div class="binder-hole"></div>
+      </div>
+
+      <!-- Close Button -->
+      <button onclick="closeQuizModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-neutral-200 hover:bg-neutral-300 text-neutral-800 flex items-center justify-center transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Clue Card Header (with Canva Clue Badge) -->
+      <div class="pl-8 mb-4 flex items-center justify-between border-b-2 border-neutral-200 pb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-[#fef08a] border-3 border-[#d97706] flex flex-col items-center justify-center shadow-md">
+            <span class="text-[8px] font-black text-[#78350f] uppercase">CLUE</span>
+            <span id="modalItemNumber" class="text-base font-black text-[#451a03] leading-none">1</span>
+          </div>
+          <div>
+            <div id="modalItemType" class="text-[10px] uppercase font-bold text-amber-800 tracking-wider">Đoán từ khoá qua hình ảnh</div>
+            <h2 id="modalItemTitle" class="font-canva text-xl font-black text-[#451a03]">Tranh Treo Tường</h2>
+          </div>
+        </div>
+        <!-- Reveal Hint Button -->
+        <button id="hintToggleBtn" onclick="toggleHint()" class="bg-[#fef08a] hover:bg-[#fde047] text-neutral-900 border border-amber-400 font-canva text-xs font-black px-3.5 py-1.5 rounded-full shadow-sm transition flex items-center gap-1.5 active:scale-95">
+          <i class="fa-regular fa-lightbulb text-amber-700"></i>
+          <span>Gợi ý</span>
+        </button>
+      </div>
+
+      <!-- Question & Challenge Area -->
+      <div class="pl-8 space-y-4 font-typewriter text-[14.5px] leading-relaxed flex-1">
+        
+        <!-- Question Text -->
+        <div class="p-3.5 bg-amber-50/80 rounded-lg border border-amber-200 text-neutral-900 font-bold text-[15px]" id="modalQuestionText">
+          Câu hỏi thử thách...
+        </div>
+
+        <!-- Dedicated In-Modal Hint Box (toggled by Gợi ý button) -->
+        <div id="modalHintBox" class="hidden bg-amber-50 border-2 border-dashed border-amber-500 p-3 rounded-xl text-amber-950 shadow-sm flex items-start gap-2.5 transition-all">
+          <div class="w-6 h-6 rounded-full bg-amber-400 border border-amber-600 flex items-center justify-center flex-none mt-0.5 text-amber-950 font-black">
+            <i class="fa-solid fa-lightbulb text-xs"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-[10px] font-black uppercase tracking-wider text-amber-800">Gợi ý manh mối:</div>
+            <div id="modalHintText" class="font-sans text-xs font-bold text-amber-950 mt-0.5 leading-snug">
+              <!-- Dynamic hint text -->
+            </div>
+          </div>
+          <button type="button" onclick="toggleHint()" class="text-amber-700 hover:text-amber-950 p-1 text-xs">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Dynamic Challenge UI -->
+        <div id="modalInteractiveArea" class="p-3 bg-white rounded-lg border border-neutral-300 shadow-inner">
+          <!-- Interactive inputs -->
+        </div>
+
+        <!-- Success Banner (Celebration & Insight, NO lock letter collection) -->
+        <div id="modalSuccessBox" class="hidden bg-emerald-50 border-2 border-emerald-600 p-4 rounded-xl text-emerald-950 shadow-md animate-fade-in">
+          <div class="flex items-center justify-between border-b border-emerald-200 pb-2 mb-2.5">
+            <div class="flex items-center gap-2 font-black text-sm text-emerald-800 uppercase tracking-wide">
+              <i class="fa-solid fa-circle-check text-emerald-600 text-xl"></i>
+              <span>CHÍNH XÁC! GIẢI MÃ THÀNH CÔNG!</span>
+            </div>
+            <span class="text-[11px] bg-emerald-700 text-white px-2.5 py-0.5 rounded-full font-black uppercase shadow-sm">
+              +1 Manh Mối
+            </span>
+          </div>
+          
+          <!-- Explanation / Insight from Ho Chi Minh Thought -->
+          <div class="bg-white p-3 rounded-lg border border-emerald-300 text-neutral-800 text-xs leading-relaxed shadow-sm">
+            <div class="text-[10px] uppercase font-black text-amber-800 tracking-wider mb-1 flex items-center gap-1">
+              <i class="fa-solid fa-bookmark text-amber-600"></i>
+              <span>Ý nghĩa tư tưởng Hồ Chí Minh:</span>
+            </div>
+            <div id="modalExplanation" class="font-bold text-neutral-900 leading-normal"></div>
+          </div>
+
+          <div class="mt-3 flex items-center justify-between pt-1">
+            <span class="text-xs font-bold text-emerald-800">
+              Tiến độ cả lớp: <strong id="modalSolvedSoFar" class="text-emerald-950 font-black text-sm">0</strong>/15 manh mối
+            </span>
+            <button type="button" onclick="closeQuizModal()" class="text-xs bg-emerald-800 hover:bg-emerald-900 text-white font-canva font-black px-4 py-2 rounded-lg shadow transition flex items-center gap-1.5 active:scale-95">
+              <span>Tiếp Tục Khám Phá</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="pl-8 mt-5 pt-3 border-t border-neutral-200 flex items-center justify-between">
+        <button onclick="closeQuizModal()" class="text-xs font-bold text-neutral-600 hover:text-neutral-900">
+          Đóng lại
+        </button>
+        <button id="modalSubmitBtn" onclick="submitCurrentQuiz()" class="bg-[#b91c1c] hover:bg-[#991b1b] text-white font-canva text-sm font-black px-6 py-2.5 rounded-xl uppercase tracking-wider shadow-lg transition active:scale-95 flex items-center gap-2">
+          <span>Kiểm tra Đáp án</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: DOOR STATUS MODAL (AUTOMATIC UNLOCK PROGRESS) -->
+  <!-- ======================================================== -->
+  <div id="doorStatusModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 animate-fade-in">
+    <div class="relative w-full max-w-lg bg-[#241a13] border-3 border-amber-500 rounded-2xl shadow-2xl p-6 text-white text-center">
+      <button onclick="closeDoorModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center transition">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+
+      <div class="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-400 mx-auto mb-3 flex items-center justify-center text-amber-400 text-3xl shadow-inner">
+        <i class="fa-solid fa-door-closed" id="doorModalIcon"></i>
+      </div>
+
+      <h3 class="font-canva text-2xl font-black uppercase tracking-wider text-amber-300 mb-1">
+        CỬA THOÁT HIỂM PHÒNG HỌC
+      </h3>
+      <p class="text-xs text-neutral-300 mb-4 leading-relaxed">
+        Căn phòng sẽ <strong class="text-amber-400 font-bold">tự động mở khóa</strong> và kích hoạt chiến thắng khi cả lớp hoàn thành tất cả <strong class="text-emerald-400 font-bold">15/15 manh mối</strong>!
+      </p>
+
+      <!-- Progress bar -->
+      <div class="bg-black/50 p-4 rounded-xl border border-neutral-700 mb-5">
+        <div class="flex items-center justify-between text-xs font-bold mb-2">
+          <span class="text-neutral-400 uppercase tracking-wider">Tiến độ mở khóa:</span>
+          <span class="text-amber-300 font-black font-mono text-sm"><span id="doorProgressCount">0</span> / 15 Manh mối</span>
+        </div>
+        <div class="w-full bg-neutral-900 h-3.5 rounded-full overflow-hidden border border-neutral-700">
+          <div id="doorProgressBar" class="bg-gradient-to-r from-amber-500 to-emerald-400 h-full transition-all duration-500 w-0"></div>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <button onclick="closeDoorModal()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-200 font-canva text-xs font-black uppercase tracking-wider transition">
+          Tiếp Tục Khám Phá
+        </button>
+        <button onclick="instantEscapeVictory()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-canva text-xs font-black uppercase tracking-wider transition shadow-lg active:scale-95">
+          <i class="fa-solid fa-bolt mr-1"></i> Mở Khóa Phòng Ngay (Presenter)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: VICTORY SCREEN (CANVA PAGE 23 DESIGN) -->
+  <!-- ======================================================== -->
+  <div id="victoryModal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 animate-fade-in">
+    <div class="relative w-full max-w-3xl bg-[#18120d] border-4 border-amber-400 rounded-3xl shadow-2xl p-8 md:p-10 text-center text-white flex flex-col items-center overflow-hidden">
+      
+      <!-- Top star & lock icon -->
+      <div class="flex items-center justify-center gap-3 text-amber-400 text-3xl mb-3">
+        <i class="fa-solid fa-star animate-pulse"></i>
+        <i class="fa-solid fa-lock-open text-4xl text-amber-300"></i>
+        <i class="fa-solid fa-star animate-pulse"></i>
+      </div>
+
+      <div class="text-xs uppercase tracking-widest text-amber-400 font-black mb-1">
+        HCM202 • GIẢI MÃ THÀNH CÔNG MẬT THẤT
+      </div>
+
+      <h1 class="font-canva text-3xl md:text-5xl font-black uppercase text-amber-300 tracking-wider mb-2">
+        PHÒNG ĐÃ MỞ KHÓA THÀNH CÔNG!
+      </h1>
+      <h2 class="font-canva text-base md:text-lg font-bold uppercase text-neutral-300 tracking-wide mb-6">
+        CHÚC MỪNG CẢ LỚP ĐÃ HOÀN THÀNH TẤT CẢ 15 THỬ THÁCH VÀ THOÁT HIỂM!
+      </h2>
+
+      <!-- Bác Hồ Quote -->
+      <div class="w-full bg-gradient-to-b from-red-950 to-red-900 border-2 border-amber-400 p-6 md:p-8 rounded-2xl max-w-2xl mb-6 shadow-2xl text-amber-100 relative overflow-hidden">
+        <p class="font-canva text-2xl md:text-3xl font-black italic leading-relaxed text-amber-200">
+          “Đoàn kết, đoàn kết, đại đoàn kết!<br>
+          Thành công, thành công, đại thành công!”
+        </p>
+        <div class="mt-4 pt-3 border-t border-amber-500/50 flex items-center justify-center gap-2 text-xs uppercase tracking-widest text-amber-300 font-extrabold">
+          <i class="fa-solid fa-quote-left text-amber-400"></i>
+          <span>Chủ tịch Hồ Chí Minh</span>
+          <i class="fa-solid fa-quote-right text-amber-400"></i>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="flex items-center justify-center gap-4 mb-6">
+        <div class="bg-black/60 border border-amber-900/80 px-6 py-2.5 rounded-xl font-mono text-sm text-neutral-300">
+          Tổng manh mối đã giải: <span class="font-black text-xl text-amber-300">15 / 15 Hoàn Thành</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button onclick="closeVictoryModal()" class="px-7 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-canva text-sm font-black uppercase tracking-wider shadow-xl transition transform hover:scale-105 active:scale-95">
+          Xem Lại Căn Phòng
+        </button>
+        <button onclick="location.reload()" class="px-5 py-3 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-200 font-canva text-sm font-bold uppercase tracking-wider border border-neutral-600 transition">
+          <i class="fa-solid fa-rotate-left mr-1"></i> Chơi Lại
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- SCRIPT LOGIC (15 QUIZZES WITH MEANINGFUL LETTER CODES) -->
+  <!-- ======================================================== -->
+  <script>
+    // Utility to shuffle an array randomly (Fisher-Yates)
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    /* 15 QUIZZES - EACH PROVIDES 1 LETTER CODE FOR 'ĐOÀN KẾT THÀNH CÔNG' */
+    const QUIZZES = [
+      {
+        id: 1,
+        item: "Quả Địa Cầu Chân Gỗ",
+        type: "Đoán từ khoá qua biểu tượng",
+        question: "Những hình ảnh này cùng gợi đến nội dung quan trọng nào trong tư tưởng Hồ Chí Minh?",
+        options: ["ĐOÀN KẾT", "CẦN KIỆM", "HỌC TẬP", "SÁNG TẠO"],
+        answer: "ĐOÀN KẾT",
+        codeLetter: "Đ",
+        codePositionDesc: "Ô số 1: 'Đ' (trong từ ĐOÀN)",
+        hint: "Gợi ý: Bó đũa không thể bẻ gãy; Kéo co tập thể; Bàn tay siết chặt... cùng nói về tinh thần gì?",
+        interactiveType: "visual_choice",
+        explanation: "Chủ tịch Hồ Chí Minh khẳng định: 'Đoàn kết là sức mạnh, đoàn kết là thắng lợi'."
+      },
+      {
+        id: 2,
+        item: "Cuốn Sách Mở Trên Bàn Nhỏ",
+        type: "Ghép thẻ lực lượng nền tảng",
+        question: "Ba lực lượng nào tạo thành nền tảng của khối đại đoàn kết toàn dân tộc theo tư tưởng Hồ Chí Minh?",
+        cards: ["Công nhân", "Nông dân", "Trí thức", "Thanh niên", "Đồng bào các dân tộc", "Tiểu thương"],
+        answer: ["Công nhân", "Nông dân", "Trí thức"],
+        codeLetter: "O",
+        codePositionDesc: "Ô số 2: 'O' (trong từ ĐOÀN)",
+        hint: "Gợi ý: Liên minh giữa lao động chân tay và lao động trí óc (3 lực lượng cốt lõi).",
+        interactiveType: "multi_cards",
+        explanation: "Liên minh Công nhân - Nông dân - Trí thức là cơ sở, nền tảng của Mặt trận dân tộc thống nhất."
+      },
+      {
+        id: 3,
+        item: "Chồng Sách Cổ Cạnh Đồng Hồ",
+        type: "Sắp xếp thứ tự quy trình",
+        question: "Sắp xếp các nội dung sau thành một trình tự hợp lý trong quá trình xây dựng khối đại đoàn kết toàn dân tộc:",
+        steps: [
+          { id: "A", text: "(A) Tập hợp lực lượng" },
+          { id: "B", text: "(B) Xác định lợi ích chung" },
+          { id: "C", text: "(C) Thành lập hình thức tổ chức phù hợp" },
+          { id: "D", text: "(D) Vận động nhân dân" }
+        ],
+        answer: ["B", "D", "C", "A"],
+        codeLetter: "À",
+        codePositionDesc: "Ô số 3: 'À' (trong từ ĐOÀN)",
+        hint: "Gợi ý: Bắt đầu từ tìm mẫu số chung (B) -> Vận động nhân dân (D) -> Lập tổ chức (C) -> Tập hợp lực lượng (A).",
+        interactiveType: "ordering",
+        explanation: "Trình tự: Xác định lợi ích chung (B) → Vận động nhân dân (D) → Thành lập hình thức tổ chức (C) → Tập hợp lực lượng (A)."
+      },
+      {
+        id: 4,
+        item: "Đèn Thả Trần Phát Sáng",
+        type: "Đọc chữ ngược qua gương phản chiếu",
+        question: "“Hình thức tổ chức của khối đại đoàn kết toàn dân tộc là gì?”",
+        reversedText: "tấhn gnốht cột nâd nợrt tặM",
+        options: [
+          "Mặt trận dân tộc thống nhất",
+          "Tổng hội liên hiệp thanh niên",
+          "Hội chữ thập đỏ Việt Nam",
+          "Công đoàn Việt Nam"
+        ],
+        answer: "Mặt trận dân tộc thống nhất",
+        codeLetter: "N",
+        codePositionDesc: "Ô số 4: 'N' (hoàn thành từ ĐOÀN!)",
+        hint: "Gợi ý: Bấm vào nút 'Soi gương' để lật ngược chữ lại và đọc rõ!",
+        interactiveType: "mirror",
+        explanation: "Mặt trận dân tộc thống nhất là nơi quy tụ khối đại đoàn kết toàn dân tộc."
+      },
+      {
+        id: 5,
+        item: "Bảng Ghim Ghi Chú Góc Trái",
+        type: "Điền từ còn thiếu",
+        question: "Hoàn thành câu: “Trong xây dựng khối đại đoàn kết toàn dân tộc, phải lấy ______ làm cơ sở, đồng thời tôn trọng những lợi ích chính đáng khác nhau.”",
+        answer: "lợi ích chung",
+        codeLetter: "K",
+        codePositionDesc: "Ô số 5: 'K' (bắt đầu từ KẾT)",
+        hint: "Gợi ý: 3 chữ bắt đầu bằng chữ L: 'L... í... c...'",
+        interactiveType: "fill_blank",
+        explanation: "Phải lấy lợi ích chung tối cao của dân tộc làm điểm tương đồng, làm cơ sở quy tụ."
+      },
+      {
+        id: 6,
+        item: "Đèn Bàn Chụp Xanh",
+        type: "Sắp xếp chữ cái (Anagram)",
+        question: "Đại đoàn kết toàn dân tộc là vấn đề ______ của cách mạng.",
+        // Scrambled letters (properly randomized!)
+        letters: ["Ợ", "C", "L", "H", "Ư", "Ế", "I", "N", "C"],
+        answer: "CHIẾN LƯỢC",
+        codeLetter: "Ế",
+        codePositionDesc: "Ô số 6: 'Ế' (trong từ KẾT)",
+        hint: "Gợi ý: Vấn đề mang tính lâu dài, sống còn (9 chữ cái, bắt đầu bằng C).",
+        interactiveType: "anagram",
+        explanation: "Đoàn kết là đường lối chiến lược xuyên suốt cách mạng Việt Nam."
+      },
+      {
+        id: 7,
+        item: "Khung Tranh Mạ Vàng Treo Tường",
+        type: "Tìm điểm sai",
+        question: "Tìm ra phát biểu KHÔNG phù hợp về đại đoàn kết theo tư tưởng Hồ Chí Minh:",
+        options: [
+          "A. Đại đoàn kết là vấn đề có ý nghĩa chiến lược.",
+          "B. Đại đoàn kết là sự nghiệp của toàn dân.",
+          "C. Chỉ những người cùng quan điểm mới có thể đoàn kết.",
+          "D. Cần tôn trọng lợi ích chính đáng của nhân dân."
+        ],
+        answer: "C",
+        codeLetter: "T",
+        codePositionDesc: "Ô số 7: 'T' (hoàn thành từ KẾT!)",
+        hint: "Gợi ý: Bác Hồ từng ví 'bàn tay có ngón dài ngón ngắn'. Có cần phải cùng quan điểm mới đoàn kết được không?",
+        interactiveType: "single_choice",
+        explanation: "Phát biểu C sai. Bác Hồ khẳng định phải cầu đồng tồn dị, chấp nhận những khác biệt không trái với lợi ích chung."
+      },
+      {
+        id: 8,
+        item: "Tủ Hồ Sơ Sắt 2 Ngăn",
+        type: "Tìm 3 từ khóa ẩn (Word Search)",
+        question: "Quan sát bảng ô chữ bên dưới và bấm chọn đúng 3 từ khóa đại đoàn kết mà bạn tìm thấy:",
+        targetWords: ["ĐOÀN KẾT", "NHÂN DÂN", "MẶT TRẬN"],
+        codeLetter: "T",
+        codePositionDesc: "Ô số 8: 'T' (bắt đầu từ THÀNH)",
+        hint: "Gợi ý: Tìm 3 từ khóa: ĐOÀN KẾT (hàng ngang 1), NHÂN DÂN (hàng ngang 2), MẶT TRẬN (hàng ngang 3).",
+        interactiveType: "word_find",
+        explanation: "Khối ĐOÀN KẾT của toàn thể NHÂN DÂN quy tụ trong MẶT TRẬN dân tộc thống nhất."
+      },
+      {
+        id: 9,
+        item: "Cửa Sổ Gỗ Lồng Kính",
+        type: "Nối sự kiện với mốc năm",
+        question: "Bấm vào 1 mốc năm ở cột trái rồi bấm vào sự kiện tương ứng ở cột phải để ghép cặp:",
+        years: ["1930", "1941", "1946", "1951"],
+        events: [
+          { id: "1941", text: "Thành lập Mặt trận Việt Minh" },
+          { id: "1951", text: "Thành lập Mặt trận Liên Việt" },
+          { id: "1930", text: "Thành lập Đảng Cộng sản Việt Nam" },
+          { id: "1946", text: "Tổng tuyển cử đầu tiên của nước VNDCCH" }
+        ],
+        codeLetter: "H",
+        codePositionDesc: "Ô số 9: 'H' (trong từ THÀNH)",
+        hint: "Gợi ý: Đảng ra đời 1930; Mặt trận Việt Minh 1941; Bầu cử Quốc hội 1946; Mặt trận Liên Việt 1951.",
+        interactiveType: "matching_pairs",
+        explanation: "Các mốc lịch sử đánh dấu sự hình thành và phát triển của khối đại đoàn kết toàn dân."
+      },
+      {
+        id: 10,
+        item: "Bản Ghi Nhớ Ghim Trên Bảng",
+        type: "Định hướng nguyên tắc",
+        question: "Muốn xây dựng khối đại đoàn kết toàn dân tộc, đâu là con đường đúng đắn nhất?",
+        options: [
+          "A. Buộc mọi người phải có cùng quan điểm",
+          "B. Tôn trọng lợi ích chính đáng của các giai cấp, tầng lớp",
+          "C. Chỉ tập hợp những người cùng tư tưởng",
+          "D. Đặt lợi ích của một nhóm lên trên lợi ích chung"
+        ],
+        answer: "B",
+        codeLetter: "À",
+        codePositionDesc: "Ô số 10: 'À' (trong từ THÀNH)",
+        hint: "Gợi ý: Phải tôn trọng và kết hợp hài hòa các lợi ích chính đáng của nhân dân.",
+        interactiveType: "single_choice",
+        explanation: "Đáp án B: Tôn trọng lợi ích chính đáng của các giai cấp, tầng lớp."
+      },
+      {
+        id: 11,
+        item: "Bảng Tên Gỗ Trên Bàn (Principal)",
+        type: "Trắc nghiệm kiến thức",
+        question: "Một trong những điều kiện quan trọng để xây dựng khối đại đoàn kết toàn dân tộc theo tư tưởng Hồ Chí Minh là gì?",
+        options: [
+          "A. Xóa bỏ mọi khác biệt giữa các giai cấp, tầng lớp",
+          "B. Đặt lợi ích của một giai cấp lên trên lợi ích chung",
+          "C. Kế thừa truyền thống yêu nước, nhân nghĩa và khoan dung của dân tộc",
+          "D. Chỉ tập hợp những lực lượng có cùng lập trường"
+        ],
+        answer: "C",
+        codeLetter: "N",
+        codePositionDesc: "Ô số 11: 'N' (trong từ THÀNH)",
+        hint: "Gợi ý: Cội nguồn sức mạnh nghìn năm của dân tộc ta là truyền thống gì?",
+        interactiveType: "single_choice",
+        explanation: "Đáp án C: Kế thừa truyền thống yêu nước, nhân nghĩa và khoan dung của dân tộc."
+      },
+      {
+        id: 12,
+        item: "Chậu Cây Cảnh Phòng Làm Việc",
+        type: "Điều tra hồ sơ nhân vật",
+        question: "Dựa vào các manh mối sau để xác định lực lượng được nhắc đến:\n• Là lực lượng đông đảo nhất trong cách mạng Việt Nam.\n• Gắn liền với ruộng đồng và sản xuất nông nghiệp.\n• Cùng với công nhân và trí thức tạo thành nền tảng của đại đoàn kết?",
+        options: ["Nông dân", "Tiểu thương", "Thương gia", "Học sinh - Sinh viên"],
+        answer: "Nông dân",
+        codeLetter: "H",
+        codePositionDesc: "Ô số 12: 'H' (hoàn thành từ THÀNH!)",
+        hint: "Gợi ý: Lực lượng nông nghiệp, chiếm phần lớn dân số nước ta.",
+        interactiveType: "single_choice",
+        explanation: "Nông dân là lực lượng đông đảo nhất, bạn đồng minh của giai cấp công nhân."
+      },
+      {
+        id: 13,
+        item: "Hộc Tủ Bàn Làm Việc Gỗ",
+        type: "Tìm định nghĩa đúng",
+        question: "Theo tư tưởng Hồ Chí Minh, Mặt trận dân tộc thống nhất là gì?",
+        options: [
+          "A. Tổ chức chính trị chỉ dành cho giai cấp công nhân và nông dân",
+          "B. Hình thức tổ chức của khối đại đoàn kết toàn dân tộc",
+          "C. Cơ quan lãnh đạo trực tiếp của Nhà nước",
+          "D. Liên minh giữa các tổ chức chính trị cùng một hệ tư tưởng"
+        ],
+        answer: "B",
+        codeLetter: "C",
+        codePositionDesc: "Ô số 13: 'C' (bắt đầu từ CÔNG)",
+        hint: "Gợi ý: Mặt trận là một tổ chức cụ thể quy tụ toàn dân tộc.",
+        interactiveType: "single_choice",
+        explanation: "Đáp án B: Hình thức tổ chức của khối đại đoàn kết toàn dân tộc."
+      },
+      {
+        id: 14,
+        item: "Bàn Gỗ Nhỏ Góc Phải",
+        type: "Tình huống làm việc nhóm",
+        question: "Một nhóm sinh viên đang bất đồng về cách triển khai dự án. Trưởng nhóm muốn nhanh chóng thống nhất để kịp deadline. Theo tư tưởng Hồ Chí Minh về đại đoàn kết, cách xử lý nào phù hợp nhất?",
+        options: [
+          "A. Tạm dừng tranh luận, trưởng nhóm quyết định phương án cuối cùng để đảm bảo tiến độ.",
+          "B. Cho các thành viên bỏ phiếu và thực hiện theo phương án có nhiều người đồng ý nhất.",
+          "C. Tiếp tục trao đổi để xác định điểm chung, đồng thời cân nhắc những lợi ích và ý kiến khác nhau.",
+          "D. Chia nhóm thành các phương án riêng để mỗi bên có thể giữ quan điểm của mình."
+        ],
+        answer: "C",
+        codeLetter: "Ô",
+        codePositionDesc: "Ô số 14: 'Ô' (trong từ CÔNG)",
+        hint: "Gợi ý: Hiệp thương dân chủ, tìm mẫu số chung, không áp đặt độc đoán.",
+        interactiveType: "single_choice",
+        explanation: "Đáp án C: Tiếp tục trao đổi để xác định điểm chung, tôn trọng các ý kiến khác biệt."
+      },
+      {
+        id: 15,
+        item: "Đồng Hồ Báo Thức Cổ",
+        type: "Tình huống tự phê bình & góp ý",
+        question: "Trong nhóm, một thành viên công khai góp ý rằng cách phân chia nhiệm vụ hiện tại chưa hợp lý. Một số thành viên cho rằng việc này gây mất đoàn kết. Cách xử lý nào phù hợp nhất?",
+        options: [
+          "A. Tạm thời không thảo luận vấn đề để tránh ảnh hưởng tinh thần tập thể.",
+          "B. Đưa vấn đề ra thảo luận nhưng chỉ thay đổi khi đa số thành viên đồng ý.",
+          "C. Lắng nghe góp ý, kiểm tra vấn đề và tìm phương án giải quyết dựa trên lợi ích chung.",
+          "D. Giữ nguyên cách phân công hiện tại nhưng cho thành viên đó tự lựa chọn phần việc khác."
+        ],
+        answer: "C",
+        codeLetter: "NG",
+        codePositionDesc: "Ô số 15: 'NG' (hoàn thành từ CÔNG!)",
+        hint: "Gợi ý: Vừa đoàn kết, vừa đấu tranh, lắng nghe tự phê bình vì lợi ích chung.",
+        interactiveType: "single_choice",
+        explanation: "Đáp án C: Lắng nghe góp ý, kiểm tra vấn đề và tìm phương án giải quyết dựa trên lợi ích chung."
+      }
+    ];
+
+    let gameState = {
+      solved: {},
+      currentQuizId: null,
+      soundEnabled: true,
+      userInputs: {},
+      matchingSelection: null,
+      matchedPairs: {}
+    };
+
+    /* SYNTHESIZED AUDIO (Web Audio API) */
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playTone(freq, type, duration, delay = 0) {
+      if (!gameState.soundEnabled) return;
+      try {
+        setTimeout(() => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration);
+        }, delay);
+      } catch(e) {}
+    }
+
+    function playSound(type) {
+      if (!gameState.soundEnabled) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      if (type === 'click') {
+        playTone(600, 'sine', 0.08);
+      } else if (type === 'success') {
+        playTone(523.25, 'triangle', 0.2, 0);
+        playTone(659.25, 'triangle', 0.2, 120);
+        playTone(783.99, 'triangle', 0.3, 240);
+        playTone(1046.50, 'sine', 0.5, 360);
+      } else if (type === 'error') {
+        playTone(220, 'sawtooth', 0.25, 0);
+        playTone(196, 'sawtooth', 0.3, 150);
+      } else if (type === 'victory') {
+        playTone(523.25, 'square', 0.15, 0);
+        playTone(523.25, 'square', 0.15, 150);
+        playTone(523.25, 'square', 0.15, 300);
+        playTone(659.25, 'square', 0.45, 450);
+        playTone(783.99, 'square', 0.6, 750);
+        playTone(1046.50, 'sine', 1.0, 1100);
+      }
+    }
+
+    function toggleSound() {
+      gameState.soundEnabled = !gameState.soundEnabled;
+      document.getElementById('soundIcon').className = gameState.soundEnabled ? "fa-solid fa-volume-high" : "fa-solid fa-volume-xmark";
+    }
+
+    /* OPEN QUIZ MODAL */
+    function openQuiz(id) {
+      playSound('click');
+      gameState.currentQuizId = id;
+      const q = QUIZZES.find(item => item.id === id);
+      if (!q) return;
+
+      document.getElementById('modalItemNumber').textContent = q.id;
+      document.getElementById('modalItemType').textContent = q.type;
+      document.getElementById('modalItemTitle').textContent = q.item;
+      document.getElementById('modalQuestionText').innerHTML = q.question.replace(/\n/g, '<br>');
+      document.getElementById('modalExplanation').textContent = q.explanation || "";
+
+      const interactive = document.getElementById('modalInteractiveArea');
+      interactive.innerHTML = '';
+
+      const isSolved = !!gameState.solved[id];
+      const successBox = document.getElementById('modalSuccessBox');
+      const submitBtn = document.getElementById('modalSubmitBtn');
+
+      if (isSolved) {
+        successBox.classList.remove('hidden');
+        const count = Object.keys(gameState.solved).length;
+        const progressEl = document.getElementById('modalSolvedSoFar');
+        if (progressEl) progressEl.textContent = count;
+        submitBtn.innerHTML = `<span>Đã Giải Thành Công ✓</span>`;
+        submitBtn.className = "bg-emerald-700 text-white font-canva text-sm font-black px-6 py-2.5 rounded-xl uppercase cursor-default";
+      } else {
+        successBox.classList.add('hidden');
+        submitBtn.innerHTML = `<span>Kiểm tra Đáp án</span><i class="fa-solid fa-arrow-right"></i>`;
+        submitBtn.className = "bg-[#b91c1c] hover:bg-[#991b1b] text-white font-canva text-sm font-black px-6 py-2.5 rounded-xl uppercase tracking-wider shadow-lg transition active:scale-95 flex items-center gap-2";
+      }
+
+      document.getElementById('modalHintText').textContent = q.hint || "Không có gợi ý cho câu hỏi này.";
+      document.getElementById('modalHintBox').classList.add('hidden');
+      const hintBtn = document.getElementById('hintToggleBtn');
+      if (hintBtn) {
+        hintBtn.classList.remove('bg-amber-300', 'ring-2', 'ring-amber-500');
+        hintBtn.innerHTML = `<i class="fa-regular fa-lightbulb text-amber-700"></i><span>Gợi ý</span>`;
+      }
+
+      renderInteractiveContent(q, interactive, isSolved);
+      document.getElementById('quizModal').classList.remove('hidden');
+    }
+
+    function closeQuizModal() {
+      playSound('click');
+      document.getElementById('quizModal').classList.add('hidden');
+    }
+
+    /* RENDER INTERACTIVE QUIZ FORMS */
+    function renderInteractiveContent(q, container, isSolved) {
+      if (q.interactiveType === "visual_choice") {
+        const shuffledOpts = shuffleArray(q.options);
+        container.innerHTML = `
+          <div class="mb-3">
+            <div class="text-xs font-bold text-neutral-600 uppercase mb-2">Manh mối thị giác:</div>
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+              <div class="bg-amber-50 border border-amber-200 p-2 rounded">
+                <i class="fa-solid fa-bars-staggered text-2xl text-amber-800 mb-1"></i>
+                <div class="font-bold">Bó đũa</div>
+              </div>
+              <div class="bg-amber-50 border border-amber-200 p-2 rounded">
+                <i class="fa-solid fa-people-pulling text-2xl text-amber-800 mb-1"></i>
+                <div class="font-bold">Kéo co</div>
+              </div>
+              <div class="bg-amber-50 border border-amber-200 p-2 rounded">
+                <i class="fa-solid fa-hands-holding-circle text-2xl text-amber-800 mb-1"></i>
+                <div class="font-bold">Siết chặt tay</div>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            ${shuffledOpts.map(opt => `
+              <button type="button" onclick="selectChoiceOption('${opt}', this)" class="quiz-choice-btn w-full text-left p-2.5 rounded-lg border border-neutral-300 bg-white hover:bg-amber-50 font-bold text-xs text-neutral-800 transition ${isSolved && opt === q.answer ? 'bg-emerald-100 border-emerald-600 text-emerald-900 font-black' : ''}">
+                ${opt}
+              </button>
+            `).join('')}
+          </div>
+        `;
+      } else if (q.interactiveType === "multi_cards") {
+        // Guarantee randomized cards so correct answers are NEVER all in the top row!
+        if (!gameState.quiz2Cards) {
+          let pool = [...q.cards];
+          for (let attempt = 0; attempt < 25; attempt++) {
+            pool = shuffleArray(pool);
+            const first3Correct = pool.slice(0, 3).every(c => q.answer.includes(c));
+            if (!first3Correct) break;
+          }
+          gameState.quiz2Cards = pool;
+        }
+        const selected = gameState.userInputs[q.id] || [];
+        container.innerHTML = `
+          <div class="text-xs font-bold text-neutral-600 uppercase mb-2">Bấm chọn 3 lực lượng cốt lõi (Đã chọn: <span id="q2-count" class="text-amber-800 font-black">${selected.length}</span>/3):</div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            ${gameState.quiz2Cards.map(card => {
+              const active = selected.includes(card) || (isSolved && q.answer.includes(card));
+              return `
+                <button type="button" onclick="toggleMultiCard('${card}', this)" class="card-btn p-3 rounded-lg border-2 text-center transition font-bold text-xs ${
+                  active 
+                    ? 'bg-amber-700 text-white border-amber-900 shadow-md ring-2 ring-amber-400' 
+                    : 'bg-white hover:bg-amber-50 border-neutral-300 text-neutral-800'
+                }">
+                  <i class="fa-solid ${active ? 'fa-check-circle' : 'fa-circle-dot'} mr-1 text-[11px]"></i>
+                  ${card}
+                </button>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } else if (q.interactiveType === "ordering") {
+        // Scramble initial steps so it's not pre-solved!
+        if (!gameState.userInputs[q.id]) {
+          let order = ["A", "B", "C", "D"];
+          for (let i = 0; i < 10; i++) {
+            order = shuffleArray(order);
+            if (JSON.stringify(order) !== JSON.stringify(q.answer)) break;
+          }
+          gameState.userInputs[q.id] = order;
+        }
+        const currentOrder = gameState.userInputs[q.id];
+        container.innerHTML = `
+          <div class="text-xs font-bold text-neutral-600 uppercase mb-2">Sắp xếp các bước theo thứ tự hợp lý từ 1 đến 4:</div>
+          <div class="space-y-1.5">
+            ${currentOrder.map((stepId, idx) => {
+              const stepObj = q.steps.find(s => s.id === stepId);
+              return `
+                <div class="flex items-center justify-between p-2 rounded bg-amber-50 border border-neutral-300 text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-amber-800 text-white text-[11px] font-bold flex items-center justify-center">${idx + 1}</span>
+                    <span class="font-bold text-neutral-800">${stepObj.text}</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <button type="button" onclick="moveOrderStep(${idx}, -1)" class="w-6 h-6 rounded bg-white hover:bg-neutral-200 border border-neutral-300 text-xs flex items-center justify-center" ${idx === 0 ? 'disabled class="opacity-30"' : ''}>
+                      <i class="fa-solid fa-arrow-up"></i>
+                    </button>
+                    <button type="button" onclick="moveOrderStep(${idx}, 1)" class="w-6 h-6 rounded bg-white hover:bg-neutral-200 border border-neutral-300 text-xs flex items-center justify-center" ${idx === currentOrder.length - 1 ? 'disabled class="opacity-30"' : ''}>
+                      <i class="fa-solid fa-arrow-down"></i>
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } else if (q.interactiveType === "mirror") {
+        const shuffledOpts = shuffleArray(q.options);
+        container.innerHTML = `
+          <div class="space-y-3">
+            <div class="bg-neutral-900 text-cyan-300 p-3 rounded-lg text-center shadow-inner">
+              <div class="text-[9px] uppercase tracking-widest text-cyan-400 font-bold mb-1">DÒNG CHỮ TRÊN GƯƠNG:</div>
+              <div id="mirrorTextTarget" class="mirror-flipped font-canva text-xl font-black py-1">
+                ${q.reversedText}
+              </div>
+              <button type="button" onclick="toggleMirrorReflection()" class="mt-2 text-xs bg-cyan-950 hover:bg-cyan-900 text-cyan-200 border border-cyan-700 px-3 py-1 rounded-full font-bold transition">
+                <i class="fa-solid fa-arrows-rotate mr-1"></i> Soi gương (Lật ngược lại)
+              </button>
+            </div>
+            <div class="space-y-1.5">
+              ${shuffledOpts.map(opt => `
+                <button type="button" onclick="selectChoiceOption('${opt}', this)" class="quiz-choice-btn w-full text-left p-2.5 rounded-lg border border-neutral-300 bg-white hover:bg-amber-50 font-bold text-xs text-neutral-800 transition ${isSolved && opt === q.answer ? 'bg-emerald-100 border-emerald-600 font-black' : ''}">
+                  ${opt}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else if (q.interactiveType === "fill_blank") {
+        const currentVal = gameState.userInputs[q.id] || (isSolved ? q.answer : "");
+        container.innerHTML = `
+          <div class="space-y-3">
+            <div class="text-xs font-bold text-neutral-600 uppercase">Nhập từ/cụm từ còn thiếu:</div>
+            <input id="blankInput" type="text" value="${currentVal}" placeholder="Nhập vào đây..." class="w-full p-2.5 rounded-lg border-2 border-amber-600 bg-white font-canva text-base text-neutral-900 text-center uppercase tracking-wide focus:outline-none focus:border-red-600" ${isSolved ? 'readonly' : ''} onkeydown="if(event.key==='Enter') submitCurrentQuiz()">
+          </div>
+        `;
+      } else if (q.interactiveType === "anagram") {
+        // Guaranteed scrambled letters (never in plain order!)
+        if (!gameState.quiz6Letters) {
+          gameState.quiz6Letters = ["Ư", "C", "Ợ", "N", "Ế", "H", "C", "L", "I"];
+        }
+        const picked = gameState.userInputs[q.id] || [];
+        const spelled = picked.map(p => p.char).join('');
+        container.innerHTML = `
+          <div class="space-y-3 text-center">
+            <div class="text-xs font-bold text-neutral-600 uppercase">Bấm các chữ cái bị xáo trộn để ghép thành từ đúng:</div>
+            <div class="flex flex-wrap items-center justify-center gap-1.5">
+              ${gameState.quiz6Letters.map((let, i) => {
+                const isUsed = picked.some(p => p.idx === i);
+                return `
+                  <button type="button" onclick="pickAnagramLetter('${let}', ${i})" class="w-9 h-9 rounded-lg bg-amber-800 hover:bg-amber-700 text-white font-black text-sm shadow transition transform active:scale-95 ${isUsed ? 'opacity-20 pointer-events-none' : ''}">
+                    ${let}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+            <div>
+              <div class="text-[10px] text-neutral-500 font-bold uppercase mb-1">Từ bạn đang ghép:</div>
+              <div id="anagramOutput" class="h-12 bg-amber-50 border-2 border-dashed border-amber-600 rounded-lg flex items-center justify-center font-canva text-xl font-black text-amber-950 tracking-widest shadow-inner">
+                ${isSolved ? q.answer : (spelled.length ? spelled : '<span class="text-neutral-400 text-xs italic">Bấm các chữ cái ở trên...</span>')}
+              </div>
+            </div>
+            <div class="flex items-center justify-center">
+              <button type="button" onclick="clearAnagram()" class="text-xs bg-neutral-200 hover:bg-neutral-300 text-neutral-800 px-4 py-1.5 rounded-full font-bold transition">
+                <i class="fa-solid fa-rotate-left mr-1"></i> Xóa ghép lại
+              </button>
+            </div>
+          </div>
+        `;
+      } else if (q.interactiveType === "single_choice") {
+        const shuffledOpts = shuffleArray(q.options);
+        container.innerHTML = `
+          <div class="space-y-1.5">
+            ${shuffledOpts.map(opt => {
+              const optKey = opt.charAt(0);
+              const isCorrect = isSolved && (optKey === q.answer || opt === q.answer);
+              return `
+                <button type="button" onclick="selectChoiceOption('${optKey}', this)" class="quiz-choice-btn w-full text-left p-2.5 rounded-lg border border-neutral-300 bg-white hover:bg-amber-50 font-bold text-xs text-neutral-800 transition ${isCorrect ? 'bg-emerald-100 border-emerald-600 text-emerald-950 font-black' : ''}">
+                  ${opt}
+                </button>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } else if (q.interactiveType === "word_find") {
+        // Quiz 8: Word search matrix + 6 CLICKABLE KEYWORD CHIPS (NO TYPING REQUIRED!)
+        const wordOptions = ["ĐOÀN KẾT", "ĐỘC LẬP", "NHÂN DÂN", "TỰ DO", "MẶT TRẬN", "HẠNH PHÚC"];
+        if (!gameState.userInputs[q.id]) {
+          gameState.userInputs[q.id] = [];
+        }
+        const selected = gameState.userInputs[q.id];
+        container.innerHTML = `
+          <div class="space-y-3">
+            <div class="text-xs font-bold text-neutral-700 uppercase">Tìm 3 từ khóa ẩn trong ma trận chữ bên dưới:</div>
+            <div class="bg-neutral-900 text-amber-300 p-3 rounded-lg font-mono text-center tracking-widest text-sm leading-relaxed border border-neutral-700 shadow-inner select-text">
+              <div class="font-bold text-emerald-400">Đ O À N K E T M T</div>
+              <div class="font-bold text-amber-300">X N H A N D A N Q</div>
+              <div class="font-bold text-cyan-300">M A T T R A N V N</div>
+            </div>
+            <div class="space-y-2 pt-1">
+              <div class="text-[11px] font-bold text-amber-900 uppercase">Bấm chọn 3 từ khóa bạn nhìn thấy trong ma trận (Đã chọn: <span id="q8-count" class="text-emerald-800 font-black">${selected.length}</span>/3):</div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                ${wordOptions.map(w => {
+                  const active = selected.includes(w) || (isSolved && q.targetWords.includes(w));
+                  return `
+                    <button type="button" onclick="toggleQuiz8Word('${w}')" class="q8-btn p-3 rounded-lg border-2 text-center transition font-black text-xs ${
+                      active 
+                        ? 'bg-emerald-700 text-white border-emerald-900 shadow-md ring-2 ring-emerald-400' 
+                        : 'bg-white hover:bg-amber-50 border-neutral-300 text-neutral-800'
+                    }">
+                      <i class="fa-solid ${active ? 'fa-check-circle' : 'fa-circle-dot'} mr-1"></i>
+                      ${w}
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (q.interactiveType === "matching_pairs") {
+        // Quiz 9: REAL INTERACTIVE MATCHING (Years on left, Shuffled events on right!)
+        if (!gameState.matchedPairs[q.id]) {
+          gameState.matchedPairs[q.id] = {};
+        }
+        if (!gameState.quiz9ShuffledEvents) {
+          gameState.quiz9ShuffledEvents = [
+            { id: "1946", text: "Tổng tuyển cử đầu tiên của nước VNDCCH" },
+            { id: "1930", text: "Thành lập Đảng Cộng sản Việt Nam" },
+            { id: "1951", text: "Thành lập Mặt trận Liên Việt" },
+            { id: "1941", text: "Thành lập Mặt trận Việt Minh" }
+          ];
+        }
+        const matched = gameState.matchedPairs[q.id];
+        const matchedCount = Object.keys(matched).length;
+        container.innerHTML = `
+          <div class="space-y-3">
+            <div class="text-xs font-bold text-neutral-600 uppercase">Bấm 1 năm ở cột trái rồi bấm sự kiện tương ứng ở cột phải:</div>
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <!-- Left: Years -->
+              <div class="space-y-2">
+                <div class="text-[10px] font-bold text-neutral-500 uppercase">Mốc Năm:</div>
+                ${q.years.map(y => {
+                  const isDone = matched[y] !== undefined;
+                  const isCorrect = matched[y] === y;
+                  const isSelected = gameState.matchingSelection === y;
+                  return `
+                    <button type="button" id="match-year-${y}" onclick="selectMatchYear('${y}', this)" class="match-year-btn w-full p-2.5 rounded-lg border-2 font-black text-center text-sm transition ${
+                      isDone 
+                        ? (isCorrect ? 'border-emerald-600 bg-emerald-100 text-emerald-950 ring-1 ring-emerald-500' : 'border-red-500 bg-red-100 text-red-950')
+                        : (isSelected ? 'border-amber-600 bg-amber-100 text-amber-950 ring-2 ring-amber-400' : 'border-neutral-300 bg-white hover:border-amber-500 text-neutral-900')
+                    }">
+                      ${y} ${isDone ? (isCorrect ? '✓' : '✗') : ''}
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+              <!-- Right: Events -->
+              <div class="space-y-2">
+                <div class="text-[10px] font-bold text-neutral-500 uppercase">Sự Kiện Lịch Sử:</div>
+                ${gameState.quiz9ShuffledEvents.map(ev => {
+                  const matchedYear = Object.keys(matched).find(y => matched[y] === ev.id);
+                  const isDone = matchedYear !== undefined;
+                  const isCorrect = matchedYear === ev.id;
+                  return `
+                    <button type="button" id="match-ev-${ev.id}" onclick="selectMatchEvent('${ev.id}', this)" class="match-ev-btn w-full p-2.5 rounded-lg border-2 font-bold text-left text-xs transition ${
+                      isDone 
+                        ? (isCorrect ? 'border-emerald-600 bg-emerald-100 text-emerald-950 ring-1 ring-emerald-500' : 'border-red-500 bg-red-100 text-red-950')
+                        : 'border-neutral-300 bg-white hover:border-amber-500 text-neutral-900'
+                    }">
+                      ${ev.text} ${isDone ? (isCorrect ? `(${matchedYear} ✓)` : `(${matchedYear} ✗)`) : ''}
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-1">
+              <span id="matchStatusText" class="text-xs font-bold text-amber-900 italic">
+                Đã nối: ${matchedCount} / 4 cặp
+              </span>
+              <div>
+                <button type="button" onclick="resetQuiz9Matching()" class="text-xs bg-neutral-200 hover:bg-neutral-300 text-neutral-800 px-3.5 py-1.5 rounded-full font-bold transition">
+                  <i class="fa-solid fa-rotate-left mr-1"></i> Nối lại
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function selectChoiceOption(val, btn) {
+      playSound('click');
+      document.querySelectorAll('.quiz-choice-btn').forEach(b => {
+        b.classList.remove('bg-amber-700', 'text-white');
+        b.classList.add('bg-white', 'text-neutral-800');
+      });
+      btn.classList.add('bg-amber-700', 'text-white');
+      btn.classList.remove('bg-white', 'text-neutral-800');
+      gameState.userInputs[gameState.currentQuizId] = val;
+    }
+
+    function toggleMultiCard(card, btn) {
+      playSound('click');
+      const qId = gameState.currentQuizId;
+      let current = gameState.userInputs[qId] || [];
+      if (current.includes(card)) {
+        current = current.filter(c => c !== card);
+      } else {
+        if (current.length >= 3) {
+          alert("Chỉ chọn đúng 3 lực lượng cốt lõi!");
+          return;
+        }
+        current.push(card);
+      }
+      gameState.userInputs[qId] = current;
+      const q = QUIZZES.find(item => item.id === qId);
+      renderInteractiveContent(q, document.getElementById('modalInteractiveArea'), !!gameState.solved[qId]);
+    }
+
+    function moveOrderStep(idx, direction) {
+      playSound('click');
+      const q = QUIZZES.find(item => item.id === gameState.currentQuizId);
+      let current = gameState.userInputs[q.id];
+      const targetIdx = idx + direction;
+      if (targetIdx < 0 || targetIdx >= current.length) return;
+      const temp = current[idx];
+      current[idx] = current[targetIdx];
+      current[targetIdx] = temp;
+      gameState.userInputs[q.id] = current;
+      renderInteractiveContent(q, document.getElementById('modalInteractiveArea'), !!gameState.solved[q.id]);
+    }
+
+    function quickSolveOrdering() {
+      playSound('click');
+      const qId = gameState.currentQuizId;
+      gameState.userInputs[qId] = ["B", "D", "C", "A"];
+      const q = QUIZZES.find(item => item.id === qId);
+      renderInteractiveContent(q, document.getElementById('modalInteractiveArea'), !!gameState.solved[qId]);
+    }
+
+    function toggleMirrorReflection() {
+      playSound('click');
+      const target = document.getElementById('mirrorTextTarget');
+      if (target.classList.contains('mirror-flipped')) {
+        target.classList.remove('mirror-flipped');
+        target.textContent = "Mặt trận dân tộc thống nhất";
+      } else {
+        target.classList.add('mirror-flipped');
+        target.textContent = "tấhn gnốht cột nâd nợrt tặM";
+      }
+    }
+
+    function quickFillBlank(val) {
+      playSound('click');
+      const input = document.getElementById('blankInput');
+      if (input) input.value = val;
+    }
+
+    function pickAnagramLetter(char, idx) {
+      playSound('click');
+      const qId = gameState.currentQuizId;
+      let picked = gameState.userInputs[qId] || [];
+      picked.push({ char, idx });
+      gameState.userInputs[qId] = picked;
+      const q = QUIZZES.find(item => item.id === qId);
+      renderInteractiveContent(q, document.getElementById('modalInteractiveArea'), !!gameState.solved[qId]);
+    }
+
+    function clearAnagram() {
+      playSound('click');
+      const qId = gameState.currentQuizId;
+      gameState.userInputs[qId] = [];
+      const q = QUIZZES.find(item => item.id === qId);
+      renderInteractiveContent(q, document.getElementById('modalInteractiveArea'), false);
+    }
+
+    function quickFillAnagram() {
+      playSound('click');
+      const qId = gameState.currentQuizId;
+      const q = QUIZZES.find(item => item.id === qId);
+      const targetChars = "CHIẾNLƯỢC".split('');
+      gameState.userInputs[qId] = targetChars.map((char, idx) => ({ char, idx }));
+      renderInteractiveContent(q, document.getElementById('modalInteractiveArea'), !!gameState.solved[qId]);
+    }
+
+    /* QUIZ 8 WORD TOGGLE (CLICK CHIPS) */
+    function toggleQuiz8Word(w) {
+      playSound('click');
+      const qId = gameState.currentQuizId;
+      let current = gameState.userInputs[qId] || [];
+      if (current.includes(w)) {
+        current = current.filter(item => item !== w);
+      } else {
+        if (current.length >= 3) {
+          alert("Chỉ chọn đúng 3 từ khóa bạn tìm thấy!");
+          return;
+        }
+        current.push(w);
+      }
+      gameState.userInputs[qId] = current;
+      const q = QUIZZES.find(item => item.id === qId);
+      renderInteractiveContent(q, document.getElementById('modalInteractiveArea'), !!gameState.solved[qId]);
+    }
+
+    /* MATCHING INTERACTIVE LOGIC (QUIZ 9) */
+    function selectMatchYear(year, btn) {
+      playSound('click');
+      gameState.matchingSelection = year;
+      const q = QUIZZES.find(item => item.id === gameState.currentQuizId);
+      renderInteractiveContent(q, document.getElementById('modalInteractiveArea'), !!gameState.solved[q.id]);
+    }
+
+    function selectMatchEvent(eventId, btn) {
+      if (!gameState.matchingSelection) {
+        alert("Hãy bấm chọn 1 mốc năm ở cột trái trước!");
+        return;
+      }
+      playSound('click');
+      const qId = gameState.currentQuizId;
+      const year = gameState.matchingSelection;
+      gameState.matchedPairs[qId][year] = eventId;
+      gameState.matchingSelection = null;
+      const q = QUIZZES.find(item => item.id === qId);
+      renderInteractiveContent(q, document.getElementById('modalInteractiveArea'), !!gameState.solved[qId]);
+    }
+
+    function resetQuiz9Matching() {
+      playSound('click');
+      const qId = gameState.currentQuizId;
+      gameState.matchedPairs[qId] = {};
+      gameState.matchingSelection = null;
+      const q = QUIZZES.find(item => item.id === qId);
+      renderInteractiveContent(q, document.getElementById('modalInteractiveArea'), false);
+    }
+
+    function quickMatchAllQuiz9() {
+      playSound('click');
+      const qId = gameState.currentQuizId;
+      gameState.matchedPairs[qId] = {
+        "1930": "1930",
+        "1941": "1941",
+        "1946": "1946",
+        "1951": "1951"
+      };
+      gameState.matchingSelection = null;
+      const q = QUIZZES.find(item => item.id === qId);
+      renderInteractiveContent(q, document.getElementById('modalInteractiveArea'), false);
+    }
+
+    function toggleHint() {
+      const q = QUIZZES.find(item => item.id === gameState.currentQuizId);
+      if (!q) return;
+      playSound('click');
+      const box = document.getElementById('modalHintBox');
+      const btn = document.getElementById('hintToggleBtn');
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        if (btn) {
+          btn.classList.add('bg-amber-300', 'ring-2', 'ring-amber-500');
+          btn.innerHTML = `<i class="fa-solid fa-lightbulb text-amber-900"></i><span>Ẩn Gợi ý</span>`;
+        }
+      } else {
+        box.classList.add('hidden');
+        if (btn) {
+          btn.classList.remove('bg-amber-300', 'ring-2', 'ring-amber-500');
+          btn.innerHTML = `<i class="fa-regular fa-lightbulb text-amber-700"></i><span>Gợi ý</span>`;
+        }
+      }
+    }
+
+    /* SUBMIT QUIZ */
+    function submitCurrentQuiz() {
+      const id = gameState.currentQuizId;
+      const q = QUIZZES.find(item => item.id === id);
+      if (!q) return;
+
+      if (gameState.solved[id]) {
+        closeQuizModal();
+        return;
+      }
+
+      let isCorrect = false;
+
+      if (q.interactiveType === "visual_choice" || q.interactiveType === "single_choice" || q.interactiveType === "mirror") {
+        const val = gameState.userInputs[id];
+        if (!val) {
+          alert("Vui lòng chọn phương án trả lời!");
+          return;
+        }
+        if (val.toUpperCase() === q.answer.toUpperCase() || val === q.answer.charAt(0)) {
+          isCorrect = true;
+        }
+      } else if (q.interactiveType === "multi_cards") {
+        const selected = gameState.userInputs[id] || [];
+        if (selected.length !== 3) {
+          alert("Vui lòng chọn đúng 3 thẻ!");
+          return;
+        }
+        if (q.answer.every(item => selected.includes(item))) isCorrect = true;
+      } else if (q.interactiveType === "ordering") {
+        const current = gameState.userInputs[id] || [];
+        if (JSON.stringify(current) === JSON.stringify(q.answer)) isCorrect = true;
+      } else if (q.interactiveType === "fill_blank") {
+        const val = (document.getElementById('blankInput')?.value || '').trim().toLowerCase();
+        if (val.includes("lợi ích chung") || val === "loi ich chung") isCorrect = true;
+      } else if (q.interactiveType === "anagram") {
+        const picked = gameState.userInputs[id] || [];
+        const str = picked.map(p => p.char).join('').replace(/\s/g, '').toUpperCase();
+        if (str === "CHIẾNLƯỢC" || str === "CHIENLUOC") isCorrect = true;
+      } else if (q.interactiveType === "word_find") {
+        // Quiz 8: Validate 3 selected word chips!
+        const selected = gameState.userInputs[id] || [];
+        if (selected.length !== 3) {
+          alert("Vui lòng bấm chọn đúng 3 từ khóa!");
+          return;
+        }
+        const isAllCorrect = q.targetWords.every(w => selected.includes(w));
+        if (isAllCorrect) {
+          isCorrect = true;
+        } else {
+          alert("Bạn chọn chưa đúng 3 từ khóa ẩn trong bảng! Gợi ý: Tìm ở 3 hàng ngang: ĐOÀN KẾT, NHÂN DÂN, MẶT TRẬN.");
+          return;
+        }
+      } else if (q.interactiveType === "matching_pairs") {
+        // Quiz 9: Validate all 4 matched correctly
+        const matched = gameState.matchedPairs[id] || {};
+        const isAllCorrect = q.years.every(y => matched[y] === y);
+        if (Object.keys(matched).length === 4 && isAllCorrect) {
+          isCorrect = true;
+        } else {
+          alert("Các cặp nối chưa chính xác hoặc chưa đủ cả 4 cặp! Hãy nối lại hoặc bấm 'Gợi ý'.");
+          return;
+        }
+      }
+
+      if (isCorrect) {
+        playSound('success');
+        gameState.solved[id] = true;
+
+        confetti({
+          particleCount: 50,
+          spread: 60,
+          origin: { y: 0.6 }
+        });
+
+        markHotspotSolved(id);
+
+        document.getElementById('modalSuccessBox').classList.remove('hidden');
+        document.getElementById('modalExplanation').textContent = q.explanation || "";
+        const totalSolved = Object.keys(gameState.solved).length;
+        const countEl = document.getElementById('modalSolvedSoFar');
+        if (countEl) countEl.textContent = totalSolved;
+
+        const submitBtn = document.getElementById('modalSubmitBtn');
+        submitBtn.innerHTML = `<span>Đã Giải Thành Công ✓</span>`;
+        submitBtn.className = "bg-emerald-700 text-white font-canva text-sm font-black px-6 py-2.5 rounded-xl uppercase cursor-default";
+
+        // If all 15 solved: automatically pop up victory screen and unlock room!
+        if (totalSolved >= 15) {
+          setTimeout(() => {
+            closeQuizModal();
+            triggerVictory();
+          }, 1200);
+        }
+
+      } else {
+        playSound('error');
+        alert("❌ Chưa chính xác! Cả lớp hãy cùng thảo luận lại hoặc bấm 'Gợi ý' nhé!");
+      }
+    }
+
+    function markHotspotSolved(id) {
+      const el = document.getElementById(`hotspot-${id}`);
+      if (el) {
+        el.classList.remove('unsolved');
+        el.classList.add('solved');
+        const bubble = el.querySelector('.hotspot-bubble');
+        if (bubble) {
+          bubble.innerHTML = `<i class="fa-solid fa-check text-base text-white"></i>`;
+        }
+      }
+
+      const total = Object.keys(gameState.solved).length;
+      const countEl = document.getElementById('solvedCount');
+      if (countEl) countEl.textContent = total;
+      const barEl = document.getElementById('progressBar');
+      if (barEl) barEl.style.width = `${(total / 15) * 100}%`;
+      
+      const headProg = document.getElementById('headerDoorProgress');
+      if (headProg) headProg.textContent = total;
+      const headProgSm = document.getElementById('headerDoorProgressSm');
+      if (headProgSm) headProgSm.textContent = total;
+      const roomDoor = document.getElementById('roomDoorStatus');
+      if (roomDoor) {
+        roomDoor.textContent = total >= 15 ? "ĐÃ MỞ KHÓA! BẤM ĐỂ XEM ➔" : `ĐÃ GIẢI ${total}/15 MANH MỐI ➔`;
+      }
+    }
+
+    /* DOOR MODAL LOGIC */
+    function handleDoorClick() {
+      const total = Object.keys(gameState.solved).length;
+      if (total >= 15) {
+        triggerVictory();
+      } else {
+        openDoorModal();
+      }
+    }
+
+    function openDoorModal() {
+      playSound('click');
+      const total = Object.keys(gameState.solved).length;
+      const countEl = document.getElementById('doorProgressCount');
+      if (countEl) countEl.textContent = total;
+      const bar = document.getElementById('doorProgressBar');
+      if (bar) bar.style.width = `${(total / 15) * 100}%`;
+      const icon = document.getElementById('doorModalIcon');
+      if (icon) {
+        icon.className = total >= 15 ? "fa-solid fa-door-open text-emerald-400" : "fa-solid fa-door-closed text-amber-400";
+      }
+      document.getElementById('doorStatusModal').classList.remove('hidden');
+    }
+
+    function closeDoorModal() {
+      playSound('click');
+      document.getElementById('doorStatusModal').classList.add('hidden');
+    }
+
+    function instantEscapeVictory() {
+      closeDoorModal();
+      closeQuizModal();
+      triggerVictory();
+    }
+
+    /* VICTORY SEQUENCE */
+    function triggerVictory() {
+      playSound('victory');
+      document.getElementById('victoryModal').classList.remove('hidden');
+
+      // Giant Confetti
+      const duration = 6 * 1000;
+      const end = Date.now() + duration;
+      const interval = setInterval(function() {
+        if (Date.now() > end) return clearInterval(interval);
+        confetti({
+          startVelocity: 30,
+          spread: 360,
+          ticks: 60,
+          origin: { x: Math.random(), y: Math.random() - 0.2 }
+        });
+      }, 200);
+    }
+
+    function closeVictoryModal() {
+      playSound('click');
+      document.getElementById('victoryModal').classList.add('hidden');
+    }
+
+    function toggleFullScreen() {
+      playSound('click');
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeQuizModal();
+        closeDoorModal();
+        closeVictoryModal();
+      }
+    });
+  </script>
+</body>
+</html>

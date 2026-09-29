@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "file": "wide_1.jpg",
+    "title": "File:Study, Samuel M. Nickerson Mansion, Driehaus Museum, Erie Street and Wabash Avenue, River North, Chicago, IL.jpg",
+    "w": 4032,
+    "h": 3024,
+    "aspect": 1.33
+  },
+  {
+    "id": 2,
+    "file": "wide_2.jpg",
+    "title": "File:Study Fireplace, Samuel M. Nickerson Mansion, Driehaus Museum, Erie Street and Wabash Avenue, River North, Chicago, IL.jpg",
+    "w": 4032,
+    "h": 3024,
+    "aspect": 1.33
+  },
+  {
+    "id": 3,
+    "file": "wide_3.jpg",
+    "title": "File:Reading-room of the British Museum LCCN2007682650.jpg",
+    "w": 3982,
+    "h": 2404,
+    "aspect": 1.66
+  },
+  {
+    "id": 4,
+    "file": "wide_4.jpg",
+    "title": "File:The British Museum; the interior of the reading room, in use Wellcome V0013531.jpg",
+    "w": 3225,
+    "h": 2191,
+    "aspect": 1.47
+  }
+]
