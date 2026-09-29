@@ -730,11 +730,11 @@
         id: 8,
         item: "Tủ Hồ Sơ Sắt 2 Ngăn",
         type: "Tìm 3 từ khóa ẩn (Word Search)",
-        question: "Quan sát bảng ô chữ bên dưới và bấm chọn đúng 3 từ khóa đại đoàn kết mà bạn tìm thấy:",
+        question: "Quan sát ma trận chữ bên dưới (từ khóa có thể nằm theo đường chéo hoặc hàng dọc không dấu) và bấm chọn đúng 3 từ khóa đại đoàn kết:",
         targetWords: ["ĐOÀN KẾT", "NHÂN DÂN", "MẶT TRẬN"],
         codeLetter: "T",
         codePositionDesc: "Ô số 8: 'T' (bắt đầu từ THÀNH)",
-        hint: "Gợi ý: Tìm 3 từ khóa: ĐOÀN KẾT (hàng ngang 1), NHÂN DÂN (hàng ngang 2), MẶT TRẬN (hàng ngang 3).",
+        hint: "Gợi ý: Tìm 3 từ khóa không dấu theo các hướng: DOAN KET (chéo xuống ↘), MAT TRAN (chéo lên ↗), NHAN DAN (cột dọc phải ↓).",
         interactiveType: "word_find",
         explanation: "Khối ĐOÀN KẾT của toàn thể NHÂN DÂN quy tụ trong MẶT TRẬN dân tộc thống nhất."
       },
@@ -1152,11 +1152,15 @@
         const selected = gameState.userInputs[q.id];
         container.innerHTML = `
           <div class="space-y-3">
-            <div class="text-xs font-bold text-neutral-700 uppercase">Tìm 3 từ khóa ẩn trong ma trận chữ bên dưới:</div>
-            <div class="bg-neutral-900 text-amber-300 p-3 rounded-lg font-mono text-center tracking-widest text-sm leading-relaxed border border-neutral-700 shadow-inner select-text">
-              <div class="font-bold text-emerald-400">Đ O À N K E T M T</div>
-              <div class="font-bold text-amber-300">X N H A N D A N Q</div>
-              <div class="font-bold text-cyan-300">M A T T R A N V N</div>
+            <div class="text-xs font-bold text-neutral-700 uppercase">Tìm 3 từ khóa ẩn trong ma trận chữ (có thể đi chéo ↘ ↗ hoặc dọc ↓, không dấu):</div>
+            <div class="bg-neutral-900 text-amber-200 p-3.5 rounded-xl font-mono text-center tracking-[0.28em] text-sm leading-relaxed border border-neutral-700 shadow-inner select-text space-y-1">
+              <div class="font-bold">D U C B V I H N N</div>
+              <div class="font-bold">H O G V C U A V H</div>
+              <div class="font-bold">Z Q A C S R L B A</div>
+              <div class="font-bold">B C H N T H Q S N</div>
+              <div class="font-bold">B Q H T K V U V D</div>
+              <div class="font-bold">Q L A H P E S I A</div>
+              <div class="font-bold">X M Y B X X T G N</div>
             </div>
             <div class="space-y-2 pt-1">
               <div class="text-[11px] font-bold text-amber-900 uppercase">Bấm chọn 3 từ khóa bạn nhìn thấy trong ma trận (Đã chọn: <span id="q8-count" class="text-emerald-800 font-black">${selected.length}</span>/3):</div>
@@ -1479,7 +1483,7 @@
         if (isAllCorrect) {
           isCorrect = true;
         } else {
-          alert("Bạn chọn chưa đúng 3 từ khóa ẩn trong bảng! Gợi ý: Tìm ở 3 hàng ngang: ĐOÀN KẾT, NHÂN DÂN, MẶT TRẬN.");
+          alert("Bạn chọn chưa đúng 3 từ khóa ẩn trong bảng! Gợi ý: Tìm 3 từ khóa không dấu (đi chéo ↘ ↗ hoặc dọc ↓): DOAN KET, NHAN DAN, MAT TRAN.");
           return;
         }
       } else if (q.interactiveType === "matching_pairs") {
