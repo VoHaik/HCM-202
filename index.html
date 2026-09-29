@@ -208,11 +208,11 @@
 
     <!-- Actions: Sound, Fullscreen, Escape Door -->
     <div class="flex items-center gap-2">
-      <!-- Master Escape Door Button -->
+      <!-- Master Sanctuary Unlock Door Button -->
       <button onclick="handleDoorClick()" class="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-neutral-950 px-3.5 py-1.5 rounded-lg font-canva font-black text-xs uppercase tracking-wider shadow-lg flex items-center gap-2 transition active:scale-95 border border-amber-300">
-        <i class="fa-solid fa-door-open text-neutral-950"></i>
-        <span class="hidden sm:inline">CỬA THOÁT HIỂM (<span id="headerDoorProgress">0</span>/15)</span>
-        <span class="sm:hidden">CỬA (<span id="headerDoorProgressSm">0</span>/15)</span>
+        <i class="fa-solid fa-key text-neutral-950"></i>
+        <span class="hidden sm:inline">KHAI MỞ MẬT THẤT (<span id="headerDoorProgress">0</span>/15)</span>
+        <span class="sm:hidden">MẬT THẤT (<span id="headerDoorProgressSm">0</span>/15)</span>
       </button>
 
       <!-- Toggle Sound -->
@@ -239,14 +239,14 @@
       <!-- CLEAN 16:9 VECTOR OFFICE ESCAPE ROOM BACKGROUND -->
       <img src="assets/room_background.png" alt="Escape Room Study" class="w-full h-full object-fill pointer-events-none select-none">
 
-      <!-- ESCAPE DOOR BADGE (Top Right of Room) -->
+      <!-- SANCTUARY UNLOCK BADGE (Top Right of Room) -->
       <div onclick="handleDoorClick()" class="absolute top-3 right-4 z-25 cursor-pointer group bg-black/85 hover:bg-black border-2 border-amber-400 px-4 py-2 rounded-xl shadow-2xl flex items-center gap-3 transition transform hover:scale-105">
         <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-black font-black">
-          <i class="fa-solid fa-door-closed group-hover:hidden"></i>
-          <i class="fa-solid fa-door-open hidden group-hover:block"></i>
+          <i class="fa-solid fa-lock group-hover:hidden"></i>
+          <i class="fa-solid fa-lock-open hidden group-hover:block"></i>
         </div>
         <div>
-          <div class="text-[9px] font-extrabold text-amber-400 uppercase tracking-widest">CỬA THOÁT HIỂM</div>
+          <div class="text-[9px] font-extrabold text-amber-400 uppercase tracking-widest">CÁNH CỬA MẬT THẤT</div>
           <div id="roomDoorStatus" class="font-canva text-xs font-black text-white uppercase tracking-wider">TIẾN ĐỘ: 0/15 MANH MỐI ➔</div>
         </div>
       </div>
@@ -513,16 +513,16 @@
       </div>
 
       <h3 class="font-canva text-2xl font-black uppercase tracking-wider text-amber-300 mb-1">
-        CỬA THOÁT HIỂM PHÒNG HỌC
+        CÁNH CỬA MẬT THẤT TƯ TƯỞNG
       </h3>
       <p class="text-xs text-neutral-300 mb-4 leading-relaxed">
-        Căn phòng sẽ <strong class="text-amber-400 font-bold">tự động mở khóa</strong> và kích hoạt chiến thắng khi cả lớp hoàn thành tất cả <strong class="text-emerald-400 font-bold">15/15 manh mối</strong>!
+        Mật thất sẽ <strong class="text-amber-400 font-bold">tự động khai mở</strong> khi cả lớp cùng nhau giải mã đủ <strong class="text-emerald-400 font-bold">15/15 manh mối</strong> tư tưởng!
       </p>
 
       <!-- Progress bar -->
       <div class="bg-black/50 p-4 rounded-xl border border-neutral-700 mb-5">
         <div class="flex items-center justify-between text-xs font-bold mb-2">
-          <span class="text-neutral-400 uppercase tracking-wider">Tiến độ mở khóa:</span>
+          <span class="text-neutral-400 uppercase tracking-wider">Tiến độ khai mở:</span>
           <span class="text-amber-300 font-black font-mono text-sm"><span id="doorProgressCount">0</span> / 15 Manh mối</span>
         </div>
         <div class="w-full bg-neutral-900 h-3.5 rounded-full overflow-hidden border border-neutral-700">
@@ -535,7 +535,7 @@
           Tiếp Tục Khám Phá
         </button>
         <button onclick="instantEscapeVictory()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-canva text-xs font-black uppercase tracking-wider transition shadow-lg active:scale-95">
-          <i class="fa-solid fa-bolt mr-1"></i> Mở Khóa Phòng Ngay (Presenter)
+          <i class="fa-solid fa-bolt mr-1"></i> Khai Mở Mật Thất Ngay (Presenter)
         </button>
       </div>
     </div>
@@ -555,14 +555,14 @@
       </div>
 
       <div class="text-xs uppercase tracking-widest text-amber-400 font-black mb-1">
-        HCM202 • GIẢI MÃ THÀNH CÔNG MẬT THẤT
+        HCM202 • KHAI MỞ THÀNH CÔNG MẬT THẤT
       </div>
 
       <h1 class="font-canva text-3xl md:text-5xl font-black uppercase text-amber-300 tracking-wider mb-2">
-        PHÒNG ĐÃ MỞ KHÓA THÀNH CÔNG!
+        ĐÃ KHAI MỞ MẬT THẤT TƯ TƯỞNG!
       </h1>
       <h2 class="font-canva text-base md:text-lg font-bold uppercase text-neutral-300 tracking-wide mb-6">
-        CHÚC MỪNG CẢ LỚP ĐÃ HOÀN THÀNH TẤT CẢ 15 THỬ THÁCH VÀ THOÁT HIỂM!
+        CHÚC MỪNG CẢ LỚP ĐÃ GIẢI MÃ THÀNH CÔNG TOÀN BỘ 15 MANH MỐI VÀ TIẾP THU TRỌN VẸN TƯ TƯỞNG ĐẠI ĐOÀN KẾT!
       </h2>
 
       <!-- Bác Hồ Quote -->
@@ -1547,7 +1547,7 @@
       if (headProgSm) headProgSm.textContent = total;
       const roomDoor = document.getElementById('roomDoorStatus');
       if (roomDoor) {
-        roomDoor.textContent = total >= 15 ? "ĐÃ MỞ KHÓA! BẤM ĐỂ XEM ➔" : `ĐÃ GIẢI ${total}/15 MANH MỐI ➔`;
+        roomDoor.textContent = total >= 15 ? "ĐÃ KHAI MỞ MẬT THẤT! BẤM ĐỂ XEM ➔" : `ĐÃ GIẢI ${total}/15 MANH MỐI ➔`;
       }
     }
 
