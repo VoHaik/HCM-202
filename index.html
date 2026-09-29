@@ -215,6 +215,12 @@
         <span class="sm:hidden">MẬT THẤT (<span id="headerDoorProgressSm">0</span>/15)</span>
       </button>
 
+      <!-- Replay / Reset Game -->
+      <button onclick="confirmResetGame()" class="p-2 px-2.5 rounded-lg bg-[#2b170d] hover:bg-[#452414] text-amber-300 hover:text-amber-100 border border-amber-900 text-xs transition flex items-center gap-1.5" title="Chơi lại từ đầu">
+        <i class="fa-solid fa-rotate-left"></i>
+        <span class="hidden md:inline font-canva text-[11px] font-black uppercase">Chơi lại</span>
+      </button>
+
       <!-- Toggle Sound -->
       <button onclick="toggleSound()" class="p-2 rounded-lg bg-[#2b170d] hover:bg-[#452414] text-amber-300 border border-amber-900 text-xs transition" title="Bật/Tắt âm thanh">
         <i id="soundIcon" class="fa-solid fa-volume-high"></i>
@@ -1608,6 +1614,14 @@
     function closeVictoryModal() {
       playSound('click');
       document.getElementById('victoryModal').classList.add('hidden');
+    }
+
+    function confirmResetGame() {
+      playSound('click');
+      const total = Object.keys(gameState.solved).length;
+      if (total === 0 || confirm("Bạn có chắc chắn muốn đặt lại trò chơi để chơi lại từ đầu không?")) {
+        location.reload();
+      }
     }
 
     function toggleFullScreen() {
